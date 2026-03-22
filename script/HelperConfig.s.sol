@@ -124,25 +124,24 @@ contract HelperConfig is CodeConstants, Script {
         console2.log(unicode"⚠️ You have deployed a mock conract!");
         console2.log("Make sure this was intentional");
         vm.startBroadcast();
-        // VRFCoordinatorV2_5Mock vrfCoordinatorV2_5Mock = new VRFCoordinatorV2_5Mock(
-        //         MOCK_BASE_FEE,
-        //         MOCK_GAS_PRICE_LINK,
-        //         MOCK_WEI_PER_UINT_LINK
-        //     );
-        //LinkToken link = new LinkToken();
-        // uint256 subscriptionId = vrfCoordinatorV2_5Mock.createSubscription();
-        // vm.stopBroadcast();
+        VRFCoordinatorV2_5Mock vrfCoordinatorV2_5Mock = new VRFCoordinatorV2_5Mock(
+            MOCK_BASE_FEE,
+            MOCK_GAS_PRICE_LINK,
+            MOCK_WEI_PER_UINT_LINK
+        );
+        uint256 subscriptionId = vrfCoordinatorV2_5Mock.createSubscription();
+        vm.stopBroadcast();
 
-        // localNetworkConfig = NetworkConfig({
-        //     subscriptionId: subscriptionId,
-        //     gasLane: 0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c, // doesn't really matter
-        //     automationUpdateInterval: 30, // 30 seconds
-        //     raffleEntranceFee: 0.01 ether,
-        //     callbackGasLimit: 500000, // 500,000 gas
-        //     vrfCoordinatorV2_5: address(vrfCoordinatorV2_5Mock),
-        //     link: address(link),
-        //     account: FOUNDRY_DEFAULT_SENDER
-        // });
+        localNetworkConfig = NetworkConfig({
+            subscriptionId: subscriptionId,
+            gasLane: 0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c,
+            automationUpdateInterval: 30,
+            raffleEntranceFee: 0.01 ether,
+            callbackGasLimit: 500000,
+            vrfCoordinatorV2_5: address(vrfCoordinatorV2_5Mock),
+            link: address(0),
+            account: FOUNDRY_DEFAULT_SENDER
+        });
         vm.deal(localNetworkConfig.account, 100 ether);
         return localNetworkConfig;
     }

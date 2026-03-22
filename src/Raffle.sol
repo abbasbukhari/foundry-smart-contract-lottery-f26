@@ -70,8 +70,8 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
 
     /*
     This is an enum that defines the possible states of the raffle. It has two states:
-1. OPEN: This state indicates that the raffle is currently open and accepting entries from players.
-2. CALCULATING: This state indicates that the raffle is currently calculating the winner and is not accepting new entries from players. This state is typically set when the performUpkeep function is called and the conditions for performing upkeep are met. Once the winner is calculated and the funds are transferred, the state is set back to OPEN to allow for the next round of the raffle.
+    1. OPEN: This state indicates that the raffle is currently open and accepting entries from players.
+    2. CALCULATING: This state indicates that the raffle is currently calculating the winner and is not accepting new entries from players. This state is typically set when the performUpkeep function is called and the conditions for performing upkeep are met. Once the winner is calculated and the funds are transferred, the state is set back to OPEN to allow for the next round of the raffle.
      */
     enum RaffleState {
         OPEN,
@@ -116,9 +116,9 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
     /*
 
     The following Events are used to emit important information about the state of the raffle and the actions taken by players. These events can be listened to by external applications (such as a frontend interface) to provide real-time updates about the raffle.
-1. RequestedRaffleWinner: This event is emitted when a request for a random winner is made to the Chainlink VRF service. It includes the requestId parameter, which is the unique identifier for the VRF request. This event can be used to track when a new winner is being calculated.
-2. RaffleEnter: This event is emitted when a player successfully enters the raffle by calling the enterRaffle function. It includes the player parameter, which is the address of the player who entered the raffle. This event can be used to track the number of players and who is participating in the raffle.
-3. WinnerPicked: This event is emitted when a winner is successfully picked and the funds are transferred to the winner. It includes the player parameter, which is the address of the player who won the raffle. This event can be used to track the winners of the raffle and provide updates to participants and observers.
+    1. RequestedRaffleWinner: This event is emitted when a request for a random winner is made to the Chainlink VRF service. It includes the requestId parameter, which is the unique identifier for the VRF request. This event can be used to track when a new winner is being calculated.
+    2. RaffleEnter: This event is emitted when a player successfully enters the raffle by calling the enterRaffle function. It includes the player parameter, which is the address of the player who entered the raffle. This event can be used to track the number of players and who is participating in the raffle.
+    3. WinnerPicked: This event is emitted when a winner is successfully picked and the funds are transferred to the winner. It includes the player parameter, which is the address of the player who won the raffle. This event can be used to track the winners of the raffle and provide updates to participants and observers.
      */
 
     /* Events */
@@ -128,12 +128,12 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
 
     /*
     The constructor function takes several parameters that are used to intialize the state variables of the contract. These parameters include:
-1. subscriptionId: The subscription ID for the Chainlink VRF service, which is used to identify the subscription that will be used to pay for VRF requests.
-2. gasLane: The gas lane (key hash) for the Chainlink VRF service, which is used to specify the maximum gas price that can be paid for VRF requests.
-3. interval: The time interval (in seconds) between raffle runs, which is used to determine when the next round of the raffle should start.
-4. entranceFee: The entrance fee (in wei) that players must pay to enter the raffle, which is used to ensure that players send enough ETH when they call the enterRaffle function.
-5. callbackGasLimit: The callback gas limit for the Chainlink VRF service, which is used to specify the maximum amount of gas that can be used for the callback function that handles the VRF response.
-6. vrfCoordinatorV2: The address of the Chainlink VRF Coordinator contract, which is used to initialize the VRFConsumerBaseV2Plus contract and enable the contract to make VRF requests and receive responses. 
+    1. subscriptionId: The subscription ID for the Chainlink VRF service, which is used to identify the subscription that will be used to pay for VRF requests.
+    2. gasLane: The gas lane (key hash) for the Chainlink VRF service, which is used to specify the maximum gas price that can be paid for VRF requests.
+    3. interval: The time interval (in seconds) between raffle runs, which is used to determine when the next round of the raffle should start.
+    4. entranceFee: The entrance fee (in wei) that players must pay to enter the raffle, which is used to ensure that players send enough ETH when they call the enterRaffle function.
+    5. callbackGasLimit: The callback gas limit for the Chainlink VRF service, which is used to specify the maximum amount of gas that can be used for the callback function that handles the VRF response.
+    6. vrfCoordinatorV2: The address of the Chainlink VRF Coordinator contract, which is used to initialize the VRFConsumerBaseV2Plus contract and enable the contract to make VRF requests and receive responses. 
 
     */
 
@@ -159,6 +159,17 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
         // }
     }
 
+    /*
+    The enterRaffle function is a public payable function that allows players to enter the raffle by sending ETH to the contract. There is a if statement that checks if the amount of ETH to msg.value is greater than or equal to the entrance fee i_entranceFee. If the amount of ETH sent is less than the entrance fee, the function will revert with the Raffle__SendMoreToEnterRaffle error. 
+
+    The function then checks if the s_raffleState is OPEN. If the raffle is not open, the function will revert with the Raffle__RaffleNotOpen error.
+
+    And then s_players.push(payable(msg.sender)) is used to add the address of the player who called the function to the s_players array. The address is cast to a payable address to allow for future transfers of funds to the player if they win the raffle.
+
+    Finally, the function emits a RaffleEnter event with the address of the player who entered the raffle. This event can be used to track the number of players and who is participating in the raffle.
+
+    */
+
     function enterRaffle() public payable {
         // require(msg.value >= i_entranceFee, "Not enough value sent");
         // require(s_raffleState == RaffleState.OPEN, "Raffle is not open");
@@ -183,6 +194,22 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
      * 3. The contract has ETH.
      * 4. Implicity, your subscription is funded with LINK.
      */
+
+    /*
+    
+    The checkUpkeep function is a public view function that overrides and then returns a boolean value indicating whether upkeep is needed for the raffle. 
+
+    Lets break down the conditions of this function:
+    1. the checkUpkeep takes a bytes memory parameter called checkData, which is not used in this implementation but can be used to pass additional data if needed.
+    2. the function returns a boolean value called upkeepNeeded, which indicates whether the conditions for performing upkeep are met. It also returns a bytes memory value called performData, which is not used in this implementation but can be used to pass additional data if needed.
+    3. the function checks several conditions to determine if upkeep is needed:
+    - isOpen: This condition checks if the raffle is currently open by comparing the s_raffleState variable to the OPEN state of the RaffleState enum.
+    - timePassed: This condition checks if the specified time interval has passed since the last time the raffle was run by comparing the current block timestamp to the s_lastTimeStamp variable and the i_interval variable.
+    - hasPlayers: This condition checks if there are any players currently entered in the raffle by checking the length of the s_players array.
+    - hasBalance: This condition checks if the contract has any ETH balance by checking the balance of the contract using address(this).balance.
+    4. If all of these conditions are true, then upkeepNeeded is set to true, indicating that the performUpkeep function should be called to perform the upkeep tasks (such as requesting a random winner from the Chainlink VRF service). If any of these conditions are false, then upkeepNeeded is set to false, indicating that the performUpkeep function should not be called at this time.   
+
+    */
     function checkUpkeep(
         bytes memory /* checkData */
     )
@@ -203,6 +230,19 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
      * @dev Once `checkUpkeep` is returning `true`, this function is called
      * and it kicks off a Chainlink VRF call to get a random winner.
      */
+
+    /*
+
+    The performUpkeep function takes a bytes calldata parameter called performData, which is not used in this implementation but can be used to pass additional data if needed. It is an external function that overrides and takes a boolean value called upkeepNeeded from the checkUpkeep function. 
+
+    The function first checks if upkeepNeeded is true. If it is not true, the function reverts with the Raffle__UpkeepNotNeeded error, address(this).balance, s_players.length, and uint256(s_raffleState) are passed as parameters to provide information about the current state of the raffle when the error is thrown. This is useful for debugging and understanding why the upkeep was not needed at the time the function was called.
+
+    if upkeepNeeded is true, the function proceeds to set the s_raffleState to CALCULATING to indicate that the raffle is currently calculating the winner and is not accepting new entries from players.
+
+
+
+    */
+
     function performUpkeep(bytes calldata /* performData */) external override {
         (bool upkeepNeeded, ) = checkUpkeep("");
         // require(upkeepNeeded, "Upkeep not needed");
