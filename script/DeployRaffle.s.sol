@@ -4,9 +4,7 @@ pragma solidity ^0.8.19;
 import {Script} from "forge-std/Script.sol";
 import {HelperConfig} from "./HelperConfig.s.sol";
 import {Raffle} from "../src/Raffle.sol";
-// import {AddConsumer, CreateSubscription, FundSubscription} from "./Interactions.s.sol";
-// ^ Commented out: subscription/consumer setup scripts are not needed for local testing.
-//   Uncomment when deploying to a live network.
+import {AddConsumer} from "./Interactions.s.sol";
 
 contract DeployRaffle is Script {
     function run() external returns (Raffle, HelperConfig) {
@@ -47,13 +45,13 @@ contract DeployRaffle is Script {
         );
         vm.stopBroadcast();
 
-        // AddConsumer addConsumer = new AddConsumer();
-        // addConsumer.addConsumer(
-        //     address(raffle),
-        //     config.vrfCoordinatorV2_5,
-        //     config.subscriptionId,
-        //     config.account
-        // );
+        AddConsumer addConsumer = new AddConsumer();
+        addConsumer.addConsumer(
+            address(raffle),
+            config.vrfCoordinatorV2_5,
+            config.subscriptionId,
+            config.account
+        );
 
         return (raffle, helperConfig);
     }

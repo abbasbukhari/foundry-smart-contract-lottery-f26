@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-// import {LinkToken} from "../test/mocks/LinkToken.sol";
+import {LinkToken} from "../test/mocks/LinkToken.sol";
 import {Script, console2} from "forge-std/Script.sol";
 import {VRFCoordinatorV2_5Mock} from "@chainlink/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
 
@@ -130,6 +130,7 @@ contract HelperConfig is CodeConstants, Script {
             MOCK_WEI_PER_UINT_LINK
         );
         uint256 subscriptionId = vrfCoordinatorV2_5Mock.createSubscription();
+        LinkToken linkToken = new LinkToken();
         vm.stopBroadcast();
 
         localNetworkConfig = NetworkConfig({
@@ -139,7 +140,7 @@ contract HelperConfig is CodeConstants, Script {
             raffleEntranceFee: 0.01 ether,
             callbackGasLimit: 500000,
             vrfCoordinatorV2_5: address(vrfCoordinatorV2_5Mock),
-            link: address(0),
+            link: address(linkToken),
             account: FOUNDRY_DEFAULT_SENDER
         });
         vm.deal(localNetworkConfig.account, 100 ether);

@@ -6,6 +6,7 @@ remappings = [
     '@openzeppelin/contracts=lib/openzeppelin-contracts',
     '@chainlink/contracts=lib/chainlink-brownie-contracts/contracts',
     'foundry-devops/=lib/foundry-devops/',
+    '@solmate/=lib/solmate/src/',
 ]
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
